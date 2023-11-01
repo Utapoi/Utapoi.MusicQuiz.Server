@@ -6,6 +6,12 @@ public sealed class Room : AuditableEntity
 {
     public string Name { get; set; } = string.Empty;
 
+    public string Password { get; set; } = string.Empty;
+
+    public int  MaxPlayers { get; set; }
+
+    public int Rounds { get; set; }
+
     public ICollection<User> Users { get; set; } = new List<User>();
 
     /// <summary>

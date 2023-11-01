@@ -1,4 +1,5 @@
-﻿using Utapoi.MusicQuiz.Application.Rooms.Commands.GetOrCreateRoom;
+﻿using Utapoi.MusicQuiz.Application.Rooms.Commands.CreateRoom;
+using Utapoi.MusicQuiz.Application.Rooms.Commands.GetOrCreateRoom;
 using Utapoi.MusicQuiz.Core.Entities;
 
 namespace Utapoi.MusicQuiz.Application.Rooms;
@@ -20,6 +21,11 @@ public interface IRoomsService
     );
 
     Task<Room> CreateAsync(
+        CancellationToken cancellationToken = default
+    );
+
+    Task<Room> CreateAsync(
+        CreateRoom.Command command,
         CancellationToken cancellationToken = default
     );
 }

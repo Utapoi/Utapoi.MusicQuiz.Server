@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Utapoi.MusicQuiz.Application.Persistence;
 using Utapoi.MusicQuiz.Application.Rooms;
+using Utapoi.MusicQuiz.Application.Rooms.Commands.CreateRoom;
 using Utapoi.MusicQuiz.Application.Rooms.Commands.GetOrCreateRoom;
 using Utapoi.MusicQuiz.Application.Users;
 using Utapoi.MusicQuiz.Core.Entities;
@@ -64,6 +65,24 @@ internal sealed class RoomsService : IRoomsService
         var room = _context.Rooms.Add(new Room
         {
             Id = Guid.NewGuid()
+        }).Entity;
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return room;
+    }
+
+    public async Task<Room> CreateAsync(
+        CreateRoom.Command command,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var room = _context.Rooms.Add(new Room
+        {
+            Id = Guid.NewGuid(),
+            Name = command.Name,
+            Password = command.Password, // TODO: Should we hash this? This is just a password for a temporary room...
+            MaxPlayers = command.MaxPlayers,
         }).Entity;
 
         await _context.SaveChangesAsync(cancellationToken);
