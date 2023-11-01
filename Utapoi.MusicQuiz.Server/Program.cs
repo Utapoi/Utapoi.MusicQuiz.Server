@@ -1,7 +1,14 @@
+using System.Text.Json.Serialization;
+using Utapoi.MusicQuiz.Application;
+using Utapoi.MusicQuiz.Infrastructure;
 using Utapoi.MusicQuiz.Server.Hubs.Rooms;
 using Constants = Utapoi.MusicQuiz.Server.Common.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services
+    .AddApplication()
+    .AddInfrastructure(builder.Configuration);
 
 builder.Services.AddCors(c =>
 {
@@ -14,13 +21,31 @@ builder.Services.AddCors(c =>
     });
 });
 
-builder.Services.AddControllers();
-builder.Services.AddSignalR(options =>
-{
-    options.EnableDetailedErrors = true;
-});
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(c =>
+    {
+        c.JsonSerializerOptions.PropertyNamingPolicy = null;
+        c.JsonSerializerOptions.WriteIndented = false;
+        c.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        c.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
+
+builder.Services
+    .AddSignalR(options =>
+    {
+        options.EnableDetailedErrors = true;
+    })
+    .AddJsonProtocol(c =>
+    {
+        c.PayloadSerializerOptions.PropertyNamingPolicy = null;
+        c.PayloadSerializerOptions.WriteIndented = false;
+        c.PayloadSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        c.PayloadSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    });
+
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c => { c.CustomSchemaIds(type => type?.FullName?.Replace("+", ".")); });
 
 var app = builder.Build();
 
@@ -34,6 +59,6 @@ app.UseCors();
 app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
-app.MapHub<RoomHub>(Constants.RoomsHubPath);
+app.MapHub<RoomHub>(Constants.RoomsHubPath); // Maybe we'll add more hubs in the future.
 
 app.Run();
