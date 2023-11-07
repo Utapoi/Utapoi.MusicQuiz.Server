@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Utapoi.MusicQuiz.Application.Rooms.Commands.CreateRoom;
 using Utapoi.MusicQuiz.Application.Rooms.Requests.GetRooms;
@@ -10,6 +11,7 @@ namespace Utapoi.MusicQuiz.Server.Controllers;
 public class RoomsController : ApiControllerBase
 {
     [HttpGet]
+    [Authorize]
     [ProducesResponseType(typeof(GetRooms.Response), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetAllAsync(CancellationToken cancellationToken = default)
     {

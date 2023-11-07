@@ -57,7 +57,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 app.UseHttpsRedirection();
-app.UseAuthorization();
+app.UseInfrastructure();
 app.MapControllers();
 app.MapHub<RoomHub>(Constants.RoomsHubPath); // Maybe we'll add more hubs in the future.
 

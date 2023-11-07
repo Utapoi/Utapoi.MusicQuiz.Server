@@ -1,9 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Utapoi.MusicQuiz.Application.Persistence;
 using Utapoi.MusicQuiz.Application.Rooms;
 using Utapoi.MusicQuiz.Application.Users;
+using Utapoi.MusicQuiz.Infrastructure.Identity;
 using Utapoi.MusicQuiz.Infrastructure.Persistence;
 using Utapoi.MusicQuiz.Infrastructure.Persistence.Interceptors;
 using Utapoi.MusicQuiz.Infrastructure.Rooms;
@@ -31,6 +34,28 @@ public static class DependencyInjection
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IRoomsService, RoomsService>();
 
+        services.AddHttpClient("UtapoiHttpClient", c =>
+        {
+            c.BaseAddress = new Uri("https://localhost:7244/"); // TODO: Load URL from appsettings.
+
+            c.DefaultRequestHeaders.Add("Accept", "application/json");
+            c.DefaultRequestHeaders.Add("User-Agent", "Utapoi.MusicQuiz.Server");
+        });
+
+        services
+            .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddScheme<JwtBearerOptions, UtapoiJwtBearerHandler>(JwtBearerDefaults.AuthenticationScheme, _ => {});
+
+        services.AddAuthorization();
+
         return services;
+    }
+
+    public static IApplicationBuilder UseInfrastructure(this IApplicationBuilder app)
+    {
+        app.UseAuthentication();
+        app.UseAuthorization();
+
+        return app;
     }
 }
