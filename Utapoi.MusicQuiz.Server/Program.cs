@@ -1,6 +1,7 @@
 using System.Text.Json.Serialization;
 using Utapoi.MusicQuiz.Application;
 using Utapoi.MusicQuiz.Infrastructure;
+using Utapoi.MusicQuiz.Infrastructure.Hubs.Game;
 using Utapoi.MusicQuiz.Server.Hubs.Rooms;
 using Constants = Utapoi.MusicQuiz.Server.Common.Constants;
 
@@ -59,6 +60,8 @@ app.UseCors();
 app.UseHttpsRedirection();
 app.UseInfrastructure();
 app.MapControllers();
-app.MapHub<RoomHub>(Constants.RoomsHubPath); // Maybe we'll add more hubs in the future.
+
+app.MapHub<RoomHub>(Constants.RoomHubPath);
+app.MapHub<GameHub>(Constants.GameHubPath);
 
 app.Run();

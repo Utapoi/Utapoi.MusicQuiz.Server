@@ -2,5 +2,7 @@
 
 public static class Constants
 {
-    public const string RoomsHubPath = "/SignalR";
+    public const string RoomHubPath = "/RoomsHub";
+
+    public const string GameHubPath = "/GamesHub";
 }

@@ -1,84 +1,78 @@
-﻿using MediatR;
+﻿using JetBrains.Annotations;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
-using Utapoi.MusicQuiz.Application.Rooms.Commands.GetOrCreateRoom;
+using Utapoi.MusicQuiz.Application.Games;
 using Utapoi.MusicQuiz.Server.Hubs.Rooms.Requests;
-using Utapoi.MusicQuiz.Server.Hubs.Rooms.Responses;
+using CreateRoomRequest = Utapoi.MusicQuiz.Server.Hubs.Rooms.Requests.CreateRoomRequest;
 
 namespace Utapoi.MusicQuiz.Server.Hubs.Rooms;
 
-//[Authorize]
-public sealed class RoomHub : Hub<IRoomHub>
+[Authorize]
+public sealed partial class RoomHub : UtapoiHub<IRoomHub>
 {
     private readonly ISender _mediator;
 
-    public RoomHub(ISender mediator)
+    private readonly IGameManager _gameManager;
+    
+    private readonly ILogger<RoomHub> _logger;
+
+    public RoomHub(ISender mediator, IGameManager gameManager, ILogger<RoomHub> logger)
     {
         _mediator = mediator;
+        _gameManager = gameManager;
+        _logger = logger;
     }
 
     public override async Task OnConnectedAsync()
     {
-        // TODO: Check if user is authenticated
-        // TODO: Check if user is in a room
-        // TODO: Check the last connection time of the user
-        // TODO: Try to reconnect the user to the room
-
+        await OnPlayerConnected();
         await base.OnConnectedAsync();
     }
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        // TODO: Start a timer to check if the user reconnects before 2min
-        // If the user reconnects, cancel the timer
-        // If the timer runs out, disconnect the user from the room
+        // TODO: Update last connection time.
+        // Context.User.GetId()
+        // Update db and state.
 
         await base.OnDisconnectedAsync(exception);
     }
 
+    [HubMethodName("HeartBeat")]
+    [UsedImplicitly]
+    public Task PlayerHeartBeat()
+    {
+        return OnPlayerHeartBeat();
+    }
+
+    [HubMethodName("CreateRoom")]
+    [UsedImplicitly]
+    public Task CreateRoom(CreateRoomRequest request)
+    {
+        return OnCreateRoomRequested(request);
+    }
+
     [HubMethodName("JoinRoom")]
+    [UsedImplicitly]
     public Task JoinRoom(JoinRoomRequest request)
     {
         return OnJoinRoomRequested(request);
     }
 
     [HubMethodName("LeaveRoom")]
-    public Task LeaveRoom(LeaveRoomRequest request, CancellationToken cancellationToken = default)
+    [UsedImplicitly]
+    public Task LeaveRoom(LeaveRoomRequest request)
     {
-        return OnLeaveRoomRequested(request, cancellationToken);
+        return OnLeaveRoomRequested(request);
     }
 
-    private async Task OnJoinRoomRequested(JoinRoomRequest request, CancellationToken cancellationToken = default)
+    [HubMethodName("StartGame")]
+    [UsedImplicitly]
+    public Task StartGame(StartGameRequest request)
     {
-        // TODO: Validation / Authorization / Authentication.
+        // TODO: Only Host can start the game.
 
-        await Groups.AddToGroupAsync(Context.ConnectionId, request.RoomId, cancellationToken);
-
-        var result = await _mediator.Send(new GetOrCreateRoom.Command
-        {
-            RoomId = Guid.Parse(request.RoomId),
-            UserId = Guid.Parse(request.UserId)
-        }, cancellationToken);
-
-        // TODO: Some implementation ideas
-        // - Get room info from database
-        // - Create a new room if it doesn't exist
-        // - Add user to the room in db
-
-        await Clients.Caller.OnRoomJoined(new RoomJoinedResponse
-        {
-            RoomId = result.Value.Id.ToString()
-        });
-
-        await Clients.OthersInGroup(request.RoomId).OnUserJoined(new UserJoinedResponse
-        {
-            UserId = result.Value.Id.ToString()
-        });
-    }
-
-    private async Task OnLeaveRoomRequested(LeaveRoomRequest request, CancellationToken cancellationToken = default)
-    {
-        await Groups.RemoveFromGroupAsync(Context.ConnectionId, request.RoomId.ToString(), cancellationToken);
-        await Clients.Caller.OnRoomLeft(new RoomLeftResponse());
+        return OnStartGameRequested(request);
     }
 }

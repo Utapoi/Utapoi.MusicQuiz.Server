@@ -2,7 +2,7 @@
 
 public sealed class LeaveRoomRequest
 {
-    public Guid UserId { get; set; }
-
-    public Guid RoomId { get; set; }
+    public string RoomId { get; set; } = string.Empty;
+ 
+    public string UserId { get; set; } = string.Empty;
 }

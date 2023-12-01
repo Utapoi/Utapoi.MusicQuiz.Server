@@ -1,6 +1,8 @@
-﻿namespace Utapoi.MusicQuiz.Server.Hubs.Rooms.Responses;
+﻿using Utapoi.MusicQuiz.Core.Sockets;
+
+namespace Utapoi.MusicQuiz.Server.Hubs.Rooms.Responses;
 
 public sealed class RoomJoinedResponse
 {
-    public string RoomId { get; set; } = string.Empty;
+    public WebSocketRoom Room { get; set; } = default!;
 }

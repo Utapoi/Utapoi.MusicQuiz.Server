@@ -1,4 +1,5 @@
 ﻿using Utapoi.MusicQuiz.Core.Entities.Common;
+using Utapoi.MusicQuiz.Core.Enums;
 
 namespace Utapoi.MusicQuiz.Core.Entities;
 
@@ -8,7 +9,9 @@ public sealed class Room : AuditableEntity
 
     public string Password { get; set; } = string.Empty;
 
-    public int  MaxPlayers { get; set; }
+    public int MaxPlayers { get; set; }
+
+    public RoomType Type { get; set; }
 
     public int Rounds { get; set; }
 

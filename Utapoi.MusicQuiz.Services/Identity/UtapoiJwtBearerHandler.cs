@@ -29,7 +29,14 @@ public sealed class UtapoiJwtBearerHandler : JwtBearerHandler
             return AuthenticateResult.Fail("Authorization header not found.");
         }
 
-        var response = await _httpClient.GetAsync($"Auth/Verify");
+        var request = new HttpRequestMessage
+        {
+            Method = HttpMethod.Get,
+            RequestUri = new Uri($"Auth/Verify", UriKind.Relative),
+        };
+        request.Headers.Add("Cookie", string.Join(";", Context.Request.Cookies.Select(c => $"{c.Key}={c.Value}")));
+
+        var response = await _httpClient.SendAsync(request);
 
         if (!response.IsSuccessStatusCode)
         {

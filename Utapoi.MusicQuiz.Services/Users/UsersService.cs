@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Utapoi.MusicQuiz.Application.Persistence;
+﻿using MongoDB.Driver;
 using Utapoi.MusicQuiz.Application.Users;
 using Utapoi.MusicQuiz.Core.Entities;
 
@@ -7,11 +6,13 @@ namespace Utapoi.MusicQuiz.Infrastructure.Users;
 
 internal sealed class UsersService : IUsersService
 {
-    private readonly IMusicQuizContext _context;
+    public static readonly string UsersTable = "Users";
 
-    public UsersService(IMusicQuizContext context)
+    private IMongoCollection<User> Users { get; }
+
+    public UsersService(IMongoDatabase db)
     {
-        _context = context;
+        Users = db.GetCollection<User>(UsersTable);
     }
 
     public async Task<User?> GetAsync(
@@ -24,8 +25,8 @@ internal sealed class UsersService : IUsersService
             return null;
         }
 
-        return await _context
-            .Users
-            .FirstOrDefaultAsync(x => x.Id == userId, cancellationToken);
+        return await Users
+            .Find(x => x.Id == userId)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 }
