@@ -1,9 +1,11 @@
-﻿using Utapoi.MusicQuiz.Server.Hubs.Rooms.Responses;
+﻿using Utapoi.MusicQuiz.Server.Hubs.Responses;
 
-namespace Utapoi.MusicQuiz.Server.Hubs.Rooms;
+namespace Utapoi.MusicQuiz.Server.Hubs;
 
-public interface IRoomHub
+public interface IUtapoiHub
 {
+    #region UtapoiHub.Rooms
+
     Task OnRoomCreated(RoomCreatedResponse response);
 
     Task OnRoomJoined(RoomJoinedResponse response);
@@ -17,4 +19,6 @@ public interface IRoomHub
     Task OnGameStarted(GameStartedResponse response);
 
     Task GetRoomInfo(Guid roomId, CancellationToken cancellationToken = default);
+
+    #endregion
 }

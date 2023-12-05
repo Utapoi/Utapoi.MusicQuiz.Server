@@ -1,6 +1,6 @@
 ﻿using Utapoi.MusicQuiz.Core.Sockets;
 
-namespace Utapoi.MusicQuiz.Server.Hubs.Rooms.Responses;
+namespace Utapoi.MusicQuiz.Server.Hubs.Responses;
 
 public sealed class RoomJoinedResponse
 {

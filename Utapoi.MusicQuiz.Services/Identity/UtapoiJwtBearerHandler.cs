@@ -5,20 +5,27 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using MongoDB.Driver;
+using Utapoi.MusicQuiz.Core.Entities;
 
 namespace Utapoi.MusicQuiz.Infrastructure.Identity;
 
 public sealed class UtapoiJwtBearerHandler : JwtBearerHandler
 {
     private readonly HttpClient _httpClient;
+
+    private readonly IMongoDatabase _db;
+
     public UtapoiJwtBearerHandler(
         IHttpClientFactory httpClientFactory,
         IOptionsMonitor<JwtBearerOptions> options,
         ILoggerFactory logger,
         UrlEncoder encoder,
-        ISystemClock clock
+        ISystemClock clock,
+        IMongoDatabase db
     ) : base(options, logger, encoder, clock)
     {
+        _db = db;
         _httpClient = httpClientFactory.CreateClient("UtapoiHttpClient");
     }
 
@@ -45,9 +52,18 @@ public sealed class UtapoiJwtBearerHandler : JwtBearerHandler
 
         var claims = GetClaims(uToken);
 
-        return claims == null
-            ? AuthenticateResult.Fail("Token validation failed")
-            : AuthenticateResult.Success(new AuthenticationTicket(claims, "Utapoi-Token"));
+        if (claims == null)
+        {
+            return AuthenticateResult.Fail("Token validation failed");
+        }
+
+        // TODO:  Better Guard/Validation?
+        await TryCreateUserAsync(
+            Guid.Parse(claims.FindFirstValue(ClaimTypes.NameIdentifier) ?? string.Empty),
+            claims.FindFirstValue(ClaimTypes.Name) ?? string.Empty
+        );
+
+        return AuthenticateResult.Success(new AuthenticationTicket(claims, "Utapoi-Token"));
     }
 
     private static ClaimsPrincipal? GetClaims(string token)
@@ -63,5 +79,31 @@ public sealed class UtapoiJwtBearerHandler : JwtBearerHandler
         var claimsPrincipal = new ClaimsPrincipal(claimsIdentity);
 
         return claimsPrincipal;
+    }
+
+    private async Task TryCreateUserAsync(
+        Guid utapoiId,
+        string username,
+        CancellationToken cancellationToken = default
+    )
+    {
+        var collection = _db.GetCollection<User>("Users");
+        var user = await collection
+            .Find(x => x.UtapoiId == utapoiId)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (user != null)
+        {
+            return;
+        }
+
+        user = new User
+        {
+            UtapoiId = utapoiId,
+            Created = DateTime.UtcNow,
+            Username = username,
+        };
+
+        await collection.InsertOneAsync(user, null, cancellationToken);
     }
 }

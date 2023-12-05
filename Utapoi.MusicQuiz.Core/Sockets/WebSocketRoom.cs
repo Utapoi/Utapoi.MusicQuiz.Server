@@ -13,6 +13,8 @@ public sealed class WebSocketRoom
     [JsonIgnore]
     public string  Password { get; set; } = string.Empty;
 
+    public bool HasPassword => !string.IsNullOrWhiteSpace(Password);
+
     public RoomType Type { get; set; } = RoomType.SinglePlayer;
 
     /// <summary>
@@ -21,11 +23,11 @@ public sealed class WebSocketRoom
     [JsonIgnore]
     public string HubGroup { get; set; } = string.Empty;
 
-    public WebSocketUser Host { get; set; } = default!;
+    public Guid Host { get; set; } = default!;
 
-    public ConcurrentDictionary<Guid, WebSocketUser> Players { get; set; } = new();
+    public ConcurrentDictionary<Guid, WebSocketPlayer> Players { get; set; } = new();
 
-    public ConcurrentDictionary<Guid, WebSocketUser> Spectators { get; set; } = new();
+    public ConcurrentDictionary<Guid, WebSocketPlayer> Spectators { get; set; } = new();
 
     public WebSocketGame Game { get; set; } = default!;
 

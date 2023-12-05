@@ -3,7 +3,7 @@ using Utapoi.MusicQuiz.Core.Enums;
 
 namespace Utapoi.MusicQuiz.Core.Sockets;
 
-public sealed class WebSocketUser
+public sealed class WebSocketPlayer
 {
     public Guid Id { get; set; }
 
@@ -11,6 +11,8 @@ public sealed class WebSocketUser
     public string ConnectionId { get; set; } = string.Empty;
 
     public string Name { get; set; } = string.Empty;
+
+    public string Avatar { get; set; } = string.Empty;
 
     public UserResponseState State { get; set; } = UserResponseState.NotAnswered;
 

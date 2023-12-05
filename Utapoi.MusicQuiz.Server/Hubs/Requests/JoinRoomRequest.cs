@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Utapoi.MusicQuiz.Server.Hubs.Rooms.Requests;
+namespace Utapoi.MusicQuiz.Server.Hubs.Requests;
 
 public sealed class JoinRoomRequest
 {

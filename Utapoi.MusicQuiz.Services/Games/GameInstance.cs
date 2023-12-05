@@ -27,7 +27,7 @@ public class GameInstance : IDisposable
 
     private WebSocketRoom CurrentRoom => _gameManager.GetRoom(RoomId)!;
 
-    private ConcurrentDictionary<Guid, WebSocketUser> Players => CurrentRoom.Players;
+    private ConcurrentDictionary<Guid, WebSocketPlayer> Players => CurrentRoom.Players;
 
     #endregion
 

@@ -15,7 +15,7 @@ public sealed class GameManager : IGameManager
 
     private ConcurrentDictionary<Guid, WebSocketRoom> Rooms { get; } = new();
 
-    private ConcurrentDictionary<Guid, WebSocketUser> Players { get; } = new();
+    private ConcurrentDictionary<Guid, WebSocketPlayer> Players { get; } = new();
 
     private IHubContext<GameHub> HubContext { get; set; }
 
@@ -30,12 +30,12 @@ public sealed class GameManager : IGameManager
         _db = db;
     }
 
-    public bool AddPlayer(WebSocketUser user)
+    public bool AddPlayer(WebSocketPlayer player)
     {
-        return Players.TryAdd(user.Id, user);
+        return Players.TryAdd(player.Id, player);
     }
 
-    public WebSocketUser? GetPlayer(Guid userId)
+    public WebSocketPlayer? GetPlayer(Guid userId)
     {
         return Players.TryGetValue(userId, out var user)
             ? user
@@ -47,11 +47,23 @@ public sealed class GameManager : IGameManager
         return Rooms.TryAdd(room.Id, room);
     }
 
+    public IReadOnlyCollection<WebSocketRoom> GetRooms()
+    {
+        return Rooms
+            .Select(x => x.Value)
+            .ToList();
+    }
+
     public WebSocketRoom? GetRoom(Guid roomId)
     {
         return Rooms.TryGetValue(roomId, out var room)
             ? room
             : null;
+    }
+
+    public bool RemoveRoom(Guid roomId)
+    {
+        return Rooms.TryRemove(roomId, out _);
     }
 
     public bool AddGameInstance(Guid roomId)
@@ -93,24 +105,17 @@ public sealed class GameManager : IGameManager
             var dbUser = await _db
                 .GetCollection<User>("Users")
                 .Find(x => x.Id == userId)
-                .FirstOrDefaultAsync(cancellationToken);
+                .FirstOrDefaultAsync(cancellationToken)!;
 
-            if (dbUser != null)
+            user = new WebSocketPlayer
             {
-                user = new WebSocketUser
-                {
-                    Id = dbUser.Id,
-                    ConnectionId = connectionId,
-                    Name = dbUser.Username,
-                    LastHeartBeat = DateTime.UtcNow,
-                };
+                Id = dbUser.Id,
+                ConnectionId = connectionId,
+                Name = dbUser.Username,
+                LastHeartBeat = DateTime.UtcNow,
+            };
 
-                AddPlayer(user);
-            }
-            else
-            {
-                return false;
-            }
+            AddPlayer(user);
         }
 
         room.Players.TryAdd(user.Id, user);
@@ -137,7 +142,14 @@ public sealed class GameManager : IGameManager
             return false;
         }
 
-        return room.Players.TryRemove(userId, out _);
+        var result = room.Players.TryRemove(userId, out _);
+
+        if (room.Players.IsEmpty && result)
+        {
+            RemoveRoom(roomId);
+        }
+
+        return result;
     }
 
     private void OnPlayerGuessed(object? sender, EventArgs e)

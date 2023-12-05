@@ -1,6 +1,6 @@
 ﻿using Utapoi.MusicQuiz.Core.Enums;
 
-namespace Utapoi.MusicQuiz.Server.Hubs.Rooms.Requests;
+namespace Utapoi.MusicQuiz.Server.Hubs.Requests;
 
 public class CreateRoomRequest
 {

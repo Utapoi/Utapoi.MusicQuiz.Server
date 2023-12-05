@@ -1,8 +1,7 @@
 using System.Text.Json.Serialization;
 using Utapoi.MusicQuiz.Application;
 using Utapoi.MusicQuiz.Infrastructure;
-using Utapoi.MusicQuiz.Infrastructure.Hubs.Game;
-using Utapoi.MusicQuiz.Server.Hubs.Rooms;
+using Utapoi.MusicQuiz.Server.Hubs;
 using Constants = Utapoi.MusicQuiz.Server.Common.Constants;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,7 +17,10 @@ builder.Services.AddCors(c =>
         p.AllowAnyHeader()
          .AllowAnyMethod()
          .AllowCredentials()
-         .WithOrigins("http://localhost:3001");
+         .WithOrigins(
+             "http://localhost:3001", // Utapoi MQ
+             "http://localhost:3002" // Utapoi Admin
+         );
     });
 });
 
@@ -61,7 +63,6 @@ app.UseHttpsRedirection();
 app.UseInfrastructure();
 app.MapControllers();
 
-app.MapHub<RoomHub>(Constants.RoomHubPath);
-app.MapHub<GameHub>(Constants.GameHubPath);
+app.MapHub<UtapoiHub>(Constants.HubPath);
 
 app.Run();

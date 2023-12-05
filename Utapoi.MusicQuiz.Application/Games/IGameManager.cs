@@ -4,13 +4,17 @@ namespace Utapoi.MusicQuiz.Application.Games;
 
 public interface IGameManager
 {
-    bool AddPlayer(WebSocketUser user);
+    bool AddPlayer(WebSocketPlayer player);
 
-    WebSocketUser? GetPlayer(Guid userId);
+    WebSocketPlayer? GetPlayer(Guid userId);
 
     bool AddRoom(WebSocketRoom room);
 
+    IReadOnlyCollection<WebSocketRoom> GetRooms();
+
     WebSocketRoom? GetRoom(Guid roomId);
+
+    bool RemoveRoom(Guid roomId);
 
     bool AddGameInstance(Guid roomId);
 
