@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Utapoi.MusicQuiz.Server.Controllers;
 
@@ -37,5 +38,17 @@ public class ApiControllerBase : ControllerBase
     protected string GetIpAddressFromRequest()
     {
         return Request.HttpContext.Connection.RemoteIpAddress?.ToString() ?? string.Empty;
+    }
+
+    protected Guid GetUserId()
+    {
+        var id = HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (!string.IsNullOrWhiteSpace(id) && Guid.TryParse(id, out var gId))
+        {
+            return gId;
+        }
+
+        return Guid.Empty;
     }
 }

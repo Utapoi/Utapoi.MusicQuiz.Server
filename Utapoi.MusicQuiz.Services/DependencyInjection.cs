@@ -3,9 +3,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using MongoDB.Driver;
+using Utapoi.MusicQuiz.Application.Games;
 using Utapoi.MusicQuiz.Application.Persistence;
 using Utapoi.MusicQuiz.Application.Rooms;
 using Utapoi.MusicQuiz.Application.Users;
+using Utapoi.MusicQuiz.Infrastructure.Games;
 using Utapoi.MusicQuiz.Infrastructure.Identity;
 using Utapoi.MusicQuiz.Infrastructure.Persistence;
 using Utapoi.MusicQuiz.Infrastructure.Persistence.Interceptors;
@@ -20,6 +23,10 @@ public static class DependencyInjection
     {
         services.AddScoped<AuditableEntitySaveChangesInterceptor>();
 
+        services.AddSingleton<IMongoDatabase>(_ =>
+            new MongoClient(configuration.GetConnectionString("MusicQuizDb")!).GetDatabase("MusicQuizDb"));
+
+        // TODO: Remove once all services are updated.
         services.AddDbContext<MusicQuizContext>(x =>
         {
             x.UseMongoDB(configuration.GetConnectionString("MusicQuizDb")!, "MusicQuizDb");
@@ -31,6 +38,7 @@ public static class DependencyInjection
 
         services.AddScoped<IMusicQuizContext>(provider => provider.GetRequiredService<MusicQuizContext>());
 
+        services.AddSingleton<IGameManager, GameManager>();
         services.AddScoped<IUsersService, UsersService>();
         services.AddScoped<IRoomsService, RoomsService>();
 

@@ -1,6 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using FluentResults;
+﻿using FluentResults;
 using MediatR;
+using Utapoi.MusicQuiz.Core.Enums;
 
 namespace Utapoi.MusicQuiz.Application.Rooms.Commands.CreateRoom;
 
@@ -11,6 +11,8 @@ public static partial class CreateRoom
         public string Name { get; init; } = string.Empty;
 
         public string Password { get; init; } = string.Empty;
+
+        public RoomType Type { get; set; }
 
         public int MaxPlayers { get; init; }
 

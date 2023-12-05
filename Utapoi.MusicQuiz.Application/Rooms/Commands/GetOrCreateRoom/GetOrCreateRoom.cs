@@ -20,7 +20,8 @@ public static partial class GetOrCreateRoom
 
             return Result.Ok(new Response
             {
-                Id = room.Id
+                Id = room.Id,
+                Room = room,
             });
         }
     }

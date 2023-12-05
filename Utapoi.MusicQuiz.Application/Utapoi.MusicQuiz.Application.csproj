@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="Games\" />
     <Folder Include="Users\" />
     <Folder Include="Persistence\" />
   </ItemGroup>

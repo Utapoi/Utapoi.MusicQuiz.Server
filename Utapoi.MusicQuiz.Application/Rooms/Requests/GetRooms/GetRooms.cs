@@ -1,5 +1,6 @@
 ﻿using FluentResults;
 using MediatR;
+using Utapoi.MusicQuiz.Application.Games;
 
 namespace Utapoi.MusicQuiz.Application.Rooms.Requests.GetRooms;
 
@@ -7,21 +8,21 @@ public static partial class GetRooms
 {
     internal sealed class Handler : IRequestHandler<Request, Result<Response>>
     {
-        private readonly IRoomsService _roomsService;
+        private readonly IGameManager _gameManager;
 
-        public Handler(IRoomsService roomsService)
+        public Handler(IGameManager gameManager)
         {
-            _roomsService = roomsService;
+            _gameManager = gameManager;
         }
 
-        public async Task<Result<Response>> Handle(Request request, CancellationToken cancellationToken)
+        public Task<Result<Response>> Handle(Request request, CancellationToken cancellationToken)
         {
-            var response = await _roomsService.GetAllAsync(cancellationToken);
+            var response = _gameManager.GetRooms();
 
-            return Result.Ok(new Response
+            return Task.FromResult(Result.Ok(new Response
             {
                 Rooms = response,
-            });
+            }));
         }
     }
 }

@@ -20,7 +20,9 @@ public static partial class CreateRoom
 
             return Result.Ok(new Response
             {
-                RoomId = room.Id
+                Id = room.Id,
+                Name = room.Name,
+                Type = room.Type,
             });
         }
     }

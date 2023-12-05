@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Utapoi.MusicQuiz.Application.Persistence;
+using MongoDB.Driver;
 using Utapoi.MusicQuiz.Application.Rooms;
 using Utapoi.MusicQuiz.Application.Rooms.Commands.CreateRoom;
 using Utapoi.MusicQuiz.Application.Rooms.Commands.GetOrCreateRoom;
@@ -10,14 +10,17 @@ namespace Utapoi.MusicQuiz.Infrastructure.Rooms;
 
 internal sealed class RoomsService : IRoomsService
 {
-    private readonly IMusicQuizContext _context;
+    public static readonly string RoomsTable = "Rooms";
+
+    private IMongoCollection<Room> Rooms { get; }
 
     private readonly IUsersService _usersService;
 
-    public RoomsService(IMusicQuizContext context, IUsersService usersService)
+    public RoomsService(IMongoDatabase db, IUsersService usersService)
     {
-        _context = context;
         _usersService = usersService;
+
+        Rooms = db.GetCollection<Room>(RoomsTable);
     }
 
     public Task<List<Room>> GetAllAsync(
@@ -25,7 +28,9 @@ internal sealed class RoomsService : IRoomsService
     )
     {
         // TODO: Add pagination and search filters.
-        return _context.Rooms.ToListAsync(cancellationToken);
+        return Rooms
+            .Find(_ =>  true)
+            .ToListAsync(cancellationToken);
     }
 
     public async Task<Room> GetOrCreateAsync(
@@ -38,7 +43,7 @@ internal sealed class RoomsService : IRoomsService
 
         room.AddUser(await _usersService.GetAsync(command.UserId, cancellationToken));
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await Rooms.ReplaceOneAsync(x => x.Id == room.Id, room, cancellationToken: cancellationToken);
 
         return room;
     }
@@ -53,21 +58,21 @@ internal sealed class RoomsService : IRoomsService
             return null;
         }
 
-        return await _context
-            .Rooms
-            .FirstOrDefaultAsync(x => x.Id == roomId, cancellationToken);
+        return await Rooms
+            .Find(x => x.Id == roomId)
+            .FirstOrDefaultAsync(cancellationToken);
     }
 
     public async Task<Room> CreateAsync(
         CancellationToken cancellationToken = default
     )
     {
-        var room = _context.Rooms.Add(new Room
+        var room = new Room
         {
             Id = Guid.NewGuid()
-        }).Entity;
+        };
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await Rooms.InsertOneAsync(room, cancellationToken: cancellationToken);
 
         return room;
     }
@@ -77,15 +82,15 @@ internal sealed class RoomsService : IRoomsService
         CancellationToken cancellationToken = default
     )
     {
-        var room = _context.Rooms.Add(new Room
+        var room = new Room
         {
             Id = Guid.NewGuid(),
             Name = command.Name,
             Password = command.Password, // TODO: Should we hash this? This is just a password for a temporary room...
             MaxPlayers = command.MaxPlayers,
-        }).Entity;
+        };
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await Rooms.InsertOneAsync(room, cancellationToken: cancellationToken);
 
         return room;
     }

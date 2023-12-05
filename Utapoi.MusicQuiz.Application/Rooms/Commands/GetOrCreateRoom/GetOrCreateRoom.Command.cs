@@ -10,6 +10,8 @@ public static partial class GetOrCreateRoom
     {
         public Guid RoomId { get; init; } = Guid.Empty;
 
+        public string RoomPassword { get; init; } = string.Empty;
+
         [Required]
         public Guid UserId { get; init; }
     }
