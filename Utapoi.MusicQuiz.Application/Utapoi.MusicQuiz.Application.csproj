@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <Folder Include="Games\" />
+    <Folder Include="Rooms\Commands\" />
     <Folder Include="Users\" />
     <Folder Include="Persistence\" />
   </ItemGroup>

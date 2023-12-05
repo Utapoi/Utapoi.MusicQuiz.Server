@@ -22,7 +22,6 @@
   <ItemGroup>
     <Folder Include="Games\" />
     <Folder Include="Hubs\Game\" />
-    <Folder Include="Rooms\" />
   </ItemGroup>
 
 </Project>

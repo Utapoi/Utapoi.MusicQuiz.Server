@@ -6,13 +6,11 @@ using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Driver;
 using Utapoi.MusicQuiz.Application.Games;
 using Utapoi.MusicQuiz.Application.Persistence;
-using Utapoi.MusicQuiz.Application.Rooms;
 using Utapoi.MusicQuiz.Application.Users;
 using Utapoi.MusicQuiz.Infrastructure.Games;
 using Utapoi.MusicQuiz.Infrastructure.Identity;
 using Utapoi.MusicQuiz.Infrastructure.Persistence;
 using Utapoi.MusicQuiz.Infrastructure.Persistence.Interceptors;
-using Utapoi.MusicQuiz.Infrastructure.Rooms;
 using Utapoi.MusicQuiz.Infrastructure.Users;
 
 namespace Utapoi.MusicQuiz.Infrastructure;
@@ -40,7 +38,6 @@ public static class DependencyInjection
 
         services.AddSingleton<IGameManager, GameManager>();
         services.AddScoped<IUsersService, UsersService>();
-        services.AddScoped<IRoomsService, RoomsService>();
 
         services.AddHttpClient("UtapoiHttpClient", c =>
         {
